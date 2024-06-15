@@ -32,19 +32,24 @@ until false {
   set experimentIndex to 0.
   until experimentIndex > (shipExperiments:length - 1) {
 
-    set shipExperiment to shipExperiments[0].
+    set shipExperiment to shipExperiments[experimentIndex].
     
     // Check if the experiment is in a new situation.
     if shipExperimentsNewSituation[experimentIndex] {
 
       // If the experiment can be run,
-      if (not shipExperiments[experimentIndex]:inoperable) and (not shipExperiments[experimentIndex]:hasData) {
+      if (not shipExperiment:inoperable) and (not shipExperiment:hasData) {
         
         // Run the experiment.
-        shipExperiments[experimentIndex]:deploy.
-        
-        // The experiment has been run in the new situation.
-        set shipExperimentsNewSituation[experimentIndex] to false.
+        shipExperiment:deploy.
+
+        // If running the experiment made it inoperable,
+        if shipExperiment:inoperable {
+
+          // It can no longer run.
+          set shipExperimentsNewSituation[experimentIndex] to false.
+
+        }
 
         print "Ran an experiment in a new situation.".
       }
@@ -54,14 +59,17 @@ until false {
     if shipExperiments[experimentIndex]:hasData {
 
       // If the data is worth transmitting,
-      if shipExperiments[experimentIndex]:data[0]:transmitValue > 0 {
-        // shipExperiment:transmit.
+      if shipExperiment:data[0]:transmitValue > 0 {
+        shipExperiment:transmit.
         print "Transmitted a science packet.".
       } else {
-        shipExperiments[experimentIndex]:dump.
+        shipExperiment:dump.
         // shipExperiment.reset.
         print "Dumped useless science packet.".
-        wait 0.
+
+        // If the packet was dumped, don't run it anymore.
+        set shipExperimentsNewSituation[experimentIndex] to false.
+
       }
     }
     

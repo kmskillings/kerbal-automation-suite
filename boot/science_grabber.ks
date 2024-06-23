@@ -15,6 +15,18 @@ for shipPart in shipParts {
 print "Found science modules:".
 print shipExperiments:length.
 
+// Gets the primary antenna of the spacecraft.
+set moduleAntenna to 0.
+for shipPart in shipParts {
+  if shipPart:hasmodule("ModuleDataTransmitter") {
+    set moduleAntenna to shipPart:getModule("ModuleDataTransmitter").
+  }
+}
+if moduleAntenna = 0 {
+  print "Found no antenna on this vessel. Halting.".
+  wait until false.
+}
+
 set kerbinAtmosphereHighAltitude  to 18_000.
 set kerbinAtmosphereEdge          to 70_000.
 set kerbinOrbitHighAltitude       to 250_000.
@@ -98,8 +110,13 @@ until false {
 
       // If the data is worth transmitting,
       if shipExperiment:data[0]:transmitValue > 0 {
+        print "Transmitting a science packet: " + experimentIndex.
         shipExperiment:transmit.
-        print "Transmitted a science packet.".
+        set antennaStatus to moduleAntenna:getField("antenna state").
+        wait until antennaStatus = "Uploading data...".
+        set antennaStatus to moduleAntenna:getField("antenna state").
+        wait until antennaStatus = "Idle".
+        print "Transmitted a science packet: " + experimentIndex.
       } else {
 
         // If the packet wasn't useful, don't run the experiment anymore.

@@ -12,14 +12,14 @@
 // The pitchover speed, pitchover angle, and second-stage ignition time must
 // be experimentally determined for each new rocket.
 
-set pitchoverSpeed to 100.
+set pitchoverSpeed to 50.
 set pitchoverAngle to 5.
 set finalStageNum to 0.
 
 set messageConfirmSettingsHeader  to "== Confirm Launch Settings ==".
-set messagePitchoverSpeed         to "Pitchover speed:\t".
-set messagePitchoverAngle         to "Pitchover angle:\t".
-set messageFinalStageNum          to "Final stage number:\t".
+set messagePitchoverSpeed         to "Pitchover speed:    ".
+set messagePitchoverAngle         to "Pitchover angle:    ".
+set messageFinalStageNum          to "Final stage number: ".
 
 set closeEnough to 1.
 
@@ -28,20 +28,19 @@ print messageConfirmSettingsHeader.
 print messagePitchoverSpeed + pitchoverSpeed.
 print messagePitchoverAngle + pitchoverAngle.
 print messageFinalStageNum  + finalStageNum.
-print "".
 
 // Set up launch.
 
-lock directionOffPrograde to ship:facing * ship:prograde:inverse.
+set initialStageNum to stage:number.
+
+lock onLaunchPad          to (stage:number = initialStageNum).
+lock directionOffPrograde to vectorAngle(ship:facing:forevector, ship:srfprograde:forevector).
+lock stageEmpty           to (stage:solidFuel = 0 and stage:liquidfuel = 0).
+lock boostComplete        to (stageEmpty and stage:number <= finalStageNum + 1).
 
 // Set up staging logic.
-set initialStageNum to stage:number.
 when 
-  stage:solidFuel   < 0.1               and 
-  stage:liquidfuel  < 0.1               and
-  stage:number      > finalStageNum + 1 and
-  stage:number      < initialStageNum   and
-  stage:ready
+  stageEmpty and not boostComplete and not onLaunchPad
 then {
   print "Staging.".
   stage.
@@ -55,17 +54,51 @@ lock throttle to 1.
 lock steering to ship:up.
 
 print "Press any key to proceed.".
-terminal:getchar.
+terminal:input:getchar.
+print "Blastoff.".
 
 stage.
 
 wait until ship:airspeed > pitchoverSpeed.
-lock steering to ship:up + R(pitchoverAngle, 0, 0).
+lock steering to heading(0, 90) + R(0, -5, 0).
+print "Beginning pitch program.".
+wait 1.
 
 // Wait until the prograde and facing directions are close.
 wait until 
-  sqrt(
-    directionOffPrograde.pitch * directionOffPrograde:pitch + 
-    directionOffPrograde:yaw * directionOffPrograde
-  ) < closeEnough.
+  directionOffPrograde < closeEnough.
+print "Locking steering to prograde.".
 lock steering to ship:srfPrograde.
+
+wait until boostComplete.
+print "Boost phase complete.".
+lock throttle to 0.
+stage.
+
+// Calculate how much circularization burn will be needed.
+
+// Determine speed at apoapsis. Use conservation of energy.
+set potentialSpecificEnergyNow  to (ship:altitude * ship:body:mu / (ship:altitude + ship:body:radius)^2).
+set kineticSpecificEnergyNow    to (ship:velocity:orbit:mag)^2 / 2.
+set totalSpecificEnergy         to potentialSpecificEnergyNow + kineticSpecificEnergyNow.
+set potentialSpecificEnergyApo  to (ship:orbit:apoapsis * ship:body:mu / (ship:altitude + ship:body:radius)^2).
+set kineticSpecificEnergyApo    to totalSpecificEnergy - potentialSpecificEnergyApo.
+set speedApo                    to sqrt(2*kineticSpecificEnergyApo).
+print "Predicted speed at apoapsis: " + speedApo.
+
+// Determine how long the circularization burn will have to be (at least).
+set requiredOrbitalSpeed to sqrt(ship:body:mu / (ship:orbit:apoapsis + ship:body:radius)).
+set circularizationDeltaV to requiredOrbitalSpeed - speedApo.
+print "Circularization burn deltaV: " + circularizationDeltaV.
+
+set circularizationAcceleration to ship:maxthrust / ship:mass.
+set circularizationTime to circularizationDeltaV / circularizationAcceleration.
+print "Circularization burn time: " + circularizationTime.
+set circularizationApoTimeMinus to circularizationTime / 2.
+print "Burn will begin at apoapsis T- " + circularizationApoTimeMinus.
+
+wait until ship:orbit:eta:apoapsis < circularizationApoTimeMinus.
+lock steering to ship:prograde.
+lock throttle to 1.
+
+wait until false.

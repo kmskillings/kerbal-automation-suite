@@ -16,7 +16,7 @@
 // anytime, but would require more engineering effort than I'm interested in
 // right now.
 
-print "Loading function countdown.".
+print "Loading function: countdown".
 declare global function countdown {
 
   declare parameter totalSeconds.

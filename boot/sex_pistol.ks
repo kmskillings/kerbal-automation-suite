@@ -5,13 +5,26 @@
 // the paramters other scripts will use. It also begins the execution sequence
 // of the launch scripts.
 
-set scriptSequence to list(
-  "countdown",
-  "orbital_launch"
-).
+set countdownSeconds to 3.
 
-set launchPitchoverSpeed    to 40.
-set launchPitchoverAngle    to 6.
-set launchfinalStageNum     to 0.
+set pitchoverSpeed to 40.
+set pitchoverAngle to 6.
 
-runPath("0:/setup_mission.ks").
+// Does basic setup chores
+runPath("0:/setupMission.ks").
+
+// Prepares functions.
+runOncePath("0:/functionDeclarations/countdown.ks").
+
+print "Sex Pistol program ready. Press any key to proceed.".
+terminal:input:getchar().
+print "Beginning Sex Pistol program sequence.".
+
+set countdownTerminated to countdown(countdownSeconds).
+if countdownTerminated {
+  print "Countdown terminated.".
+} else {
+  print "Countdown was interrupted.".
+}
+
+print "Sex Pistol program sequence complete!".

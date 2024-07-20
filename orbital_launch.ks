@@ -12,22 +12,18 @@
 // The pitchover speed, pitchover angle, and second-stage ignition time must
 // be experimentally determined for each new rocket.
 
-set pitchoverSpeed to 50.
-set pitchoverAngle to 5.
-set finalStageNum to 0.
-
 set messageConfirmSettingsHeader  to "== Confirm Launch Settings ==".
 set messagePitchoverSpeed         to "Pitchover speed:    ".
 set messagePitchoverAngle         to "Pitchover angle:    ".
 set messageFinalStageNum          to "Final stage number: ".
 
-set closeEnough to 1.
+set launchCloseEnough to 1.
 
 // Log settings.
 print messageConfirmSettingsHeader.
-print messagePitchoverSpeed + pitchoverSpeed.
-print messagePitchoverAngle + pitchoverAngle.
-print messageFinalStageNum  + finalStageNum.
+print messagePitchoverSpeed + launchPitchoverSpeed.
+print messagePitchoverAngle + launchPitchoverAngle.
+print messageFinalStageNum  + launchFinalStageNum.
 
 // Set up launch.
 
@@ -36,7 +32,7 @@ set initialStageNum to stage:number.
 lock onLaunchPad          to (stage:number = initialStageNum).
 lock directionOffPrograde to vectorAngle(ship:facing:forevector, ship:srfprograde:forevector).
 lock stageEmpty           to (stage:solidFuel = 0 and stage:liquidfuel = 0).
-lock boostComplete        to (stageEmpty and stage:number <= finalStageNum + 1).
+lock boostComplete        to (stageEmpty and stage:number <= launchFinalStageNum + 1).
 
 // Set up staging logic.
 when 
@@ -50,29 +46,30 @@ then {
 // Max throttle on all engines.
 lock throttle to 1.
 
+// Enable RCS for maneuvering.
+rcs on.
+
 // Go directly up during first phase.
 lock steering to ship:up.
 
-print "Press any key to proceed.".
-terminal:input:getchar.
-print "Blastoff.".
-
 stage.
+wait 1.
 
-wait until ship:airspeed > pitchoverSpeed.
-lock steering to heading(0, 90) + R(0, -5, 0).
+wait until ship:airspeed > launchPitchoverSpeed.
+lock steering to heading(90, 90 - launchPitchoverAngle).
 print "Beginning pitch program.".
 wait 1.
 
 // Wait until the prograde and facing directions are close.
 wait until 
-  directionOffPrograde < closeEnough.
+  directionOffPrograde < launchCloseEnough.
 print "Locking steering to prograde.".
 lock steering to ship:srfPrograde.
 
 wait until boostComplete.
 print "Boost phase complete.".
 lock throttle to 0.
+wait until ship:altitude > 50000.
 stage.
 
 // Calculate how much circularization burn will be needed.
@@ -98,7 +95,11 @@ set circularizationApoTimeMinus to circularizationTime / 2.
 print "Burn will begin at apoapsis T- " + circularizationApoTimeMinus.
 
 wait until ship:orbit:eta:apoapsis < circularizationApoTimeMinus.
-lock steering to ship:prograde.
+
+// Calculate heading to burn toward
+lock circularizationPitch to 180 - ship:orbit:trueanomaly.
+lock steering to heading(90, -circularizationPitch).
+
 lock throttle to 1.
 
-wait until false.
+wait until ship:orbit:periapsis > 70000.

@@ -5,3 +5,6 @@
 
 // Open the terminal.
 core:part:getmodule("kOSProcessor"):doevent("Open Terminal").
+
+// Make sure that throttle goes to 0 after the program exits.
+set ship:control:pilotmainthrottle to 0.

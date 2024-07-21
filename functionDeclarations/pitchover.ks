@@ -65,8 +65,6 @@ declare global function pitchover {
   print "Beginning pitchover maneuver.".
   lock angleProgradeUp to vectorAngle(ship:srfprograde:forevector, ship:up:forevector).
   lock steeringOffUp to min(pitchoverAngle, angleProgradeUp + maxAngleOfAttack).
-  print angleProgradeUp.
-  print steeringOffUp.
   lock steering to heading(launchHeading, 90 - steeringOffUp).
   wait 1.
 

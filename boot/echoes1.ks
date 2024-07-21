@@ -53,6 +53,8 @@ if countdownTerminated {
     spaceAltitude,
     experimentsList
   ).
+  wait until ship:verticalspeed < 0.
+  stage.
   recover(
     parachuteAltitude
   ).

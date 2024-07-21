@@ -21,6 +21,8 @@ set experimentsList to list(
   )
 ).
 
+set parachuteAltitude to 5000.
+
 // Does basic setup chores
 runPath("0:/setupMission.ks").
 
@@ -28,6 +30,7 @@ runPath("0:/setupMission.ks").
 runOncePath("0:/functionDeclarations/countdown.ks").
 runOncePath("0:/functionDeclarations/pitchover.ks").
 runOncePath("0:/functionDeclarations/grabScienceAtAltitude.ks").
+runOncePath("0:/functionDeclarations/recover.ks").
 
 print "Echoes 1 program ready. Press any key to proceed.".
 terminal:input:getchar().
@@ -49,6 +52,9 @@ if countdownTerminated {
   grabScienceAtAltitude(
     spaceAltitude,
     experimentsList
+  ).
+  recover(
+    parachuteAltitude
   ).
 } else {
   print "Countdown was interrupted.".

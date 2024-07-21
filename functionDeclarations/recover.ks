@@ -21,7 +21,8 @@ declare global function recover {
 
   print "Waiting for parachute deployment at " + parachuteAltitude.
   wait until ship:altitude < parachuteAltitude.
+  unlock steering.
   stage.
   print "Deployed parachutes.".
-  
+
 }

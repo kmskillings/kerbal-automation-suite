@@ -13,12 +13,25 @@ set lastBoosterStage  to 3.
 set useRcsDuringBoost to true.
 set closeEnough       to 0.1.
 
+set spaceAltitude to 70000.
+set experimentsList to list(
+  lexicon(
+    "name",   "GooExperiment",
+    "count",  2
+  )
+).
+
 // Does basic setup chores
 runPath("0:/setupMission.ks").
 
 // Prepares functions.
 runOncePath("0:/functionDeclarations/countdown.ks").
 runOncePath("0:/functionDeclarations/pitchover.ks").
+runOncePath("0:/functionDeclarations/grabScienceAtAltitude.ks").
+
+print "Echoes 1 program ready. Press any key to proceed.".
+terminal:input:getchar().
+print "Beginning Echoes 1 program sequence.".
 
 set countdownTerminated to countdown(countdownSeconds).
 if countdownTerminated {
@@ -32,6 +45,10 @@ if countdownTerminated {
     lastBoosterStage,
     useRcsDuringBoost,
     closeEnough
+  ).
+  grabScienceAtAltitude(
+    spaceAltitude,
+    experimentsList
   ).
 } else {
   print "Countdown was interrupted.".

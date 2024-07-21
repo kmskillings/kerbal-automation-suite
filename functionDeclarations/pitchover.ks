@@ -77,7 +77,7 @@ declare global function pitchover {
   // Wait until the boost phase has finished.
   wait until boostComplete.
   print "Boost phase complete.".
-  unlock throttle.
+  lock throttle to 0.
   unlock steering.
   
 }

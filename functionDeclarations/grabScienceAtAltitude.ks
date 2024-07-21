@@ -35,7 +35,7 @@ declare global function grabScienceAtAltitude {
     for experimentPart in experimentParts {
       set experimentModule to experimentPart:getModule("ModuleScienceExperiment").
       if not experimentModule:inoperable {
-        experimentPart:deploy.
+        experimentModule:deploy.
         set alreadyRunCount to alreadyRunCount + 1.
         print "Grabbed data".
       }

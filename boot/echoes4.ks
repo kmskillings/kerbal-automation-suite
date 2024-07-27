@@ -27,6 +27,8 @@ set experimentsList to list(
   )
 ).
 
+set orbitCount to 10.
+
 set deorbitPeriapsis to 20000.
 
 set parachuteAltitude to 5000.
@@ -77,9 +79,14 @@ if countdownTerminated {
     experimentsList
   ).
 
+  wait orbitCount * ship:orbit:period.
+
   deorbit(
     deorbitPeriapsis
   ).
+
+  wait until altitude < spaceAltitude.
+  stage.
 
   recover(
     parachuteAltitude

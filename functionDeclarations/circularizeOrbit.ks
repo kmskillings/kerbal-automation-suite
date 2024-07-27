@@ -25,15 +25,15 @@ declare global function circularizeOrbit {
   set potentialEnergyNow  to -(ship:body:mu / (ship:altitude + ship:body:radius)).
   set kineticEnergyNow    to (ship:velocity:orbit:mag)^2 / 2.
   set totalEnergy         to potentialEnergyNow + kineticEnergyNow.
-  print "Current potential energy: " + potentialEnergyNow.
-  print "Current kinetic energy: " + kineticEnergyNow.
-  print "Total energy: " + totalEnergy.
+  // print "Current potential energy: " + potentialEnergyNow.
+  // print "Current kinetic energy: " + kineticEnergyNow.
+  // print "Total energy: " + totalEnergy.
   set potentialEnergyApo  to -(ship:body:mu / (ship:orbit:apoapsis + ship:body:radius)).
   set kineticEnergyApo    to totalEnergy - potentialEnergyApo.
   set speedApo            to sqrt(2 * kineticEnergyApo).
-  print "Apoapsis potential energy: " + potentialEnergyApo.
-  print "Apoapsis kinetic energy: " + kineticEnergyApo.
-  print "Predicted speed at apoapsis: " + speedApo.
+  // print "Apoapsis potential energy: " + potentialEnergyApo.
+  // print "Apoapsis kinetic energy: " + kineticEnergyApo.
+  // print "Predicted speed at apoapsis: " + speedApo.
 
   // Determine how long the circularization burn will have to be.
   set circularOrbitalSpeed to sqrt(ship:body:mu / (ship:orbit:apoapsis + ship:body:radius)).
@@ -49,7 +49,7 @@ declare global function circularizeOrbit {
   set burnPitch to 180-ship:orbit:trueanomaly.
 
   wait until ship:orbit:eta:apoapsis < burnApoTimeMinus.
-  print "Burn heading: " + burnHeading.
+  // print "Burn heading: " + burnHeading.
   set burnSteering to heading(burnHeading, -burnPitch).
   lock steering to burnSteering.
   lock throttle to 1.

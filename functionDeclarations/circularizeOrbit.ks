@@ -1,4 +1,4 @@
-// Pitchover
+// Circularize Orbit
 // 
 // This script contains a declaration for a function called circularizeOrbit. 
 // This script should be run before any mission operations which require this
